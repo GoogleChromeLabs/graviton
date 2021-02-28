@@ -155,7 +155,11 @@ export default class Board extends Component<Props, State> {
         event.key === "ArrowLeft" ||
         event.key === "ArrowRight" ||
         event.key === "ArrowUp" ||
-        event.key === "ArrowDown")
+        event.key === "ArrowDown" || 
+        event.key === "a" || 
+        event.key === "d" || 
+        event.key === "w" || 
+        event.key === "s")
     ) {
       this.moveFocusByKey(event, 0, 0);
     }
@@ -363,21 +367,22 @@ export default class Board extends Component<Props, State> {
   private onKeyDownOnTable(event: KeyboardEvent) {
     // Since click action is tied to mouseup event,
     // listen to Enter in case of key navigation click.
-    // Key 8 support is for T9 navigation
-    if (event.key === "Enter" || event.key === "8") {
+    // Key 8 support is for T9 navigation.
+    // Space key support provides ease-of-use for keyboard users.
+    if (event.key === "Enter" || event.key === "8" || event.key === " ") {
       const button = document.activeElement as HTMLButtonElement;
       if (!button) {
         return;
       }
       event.preventDefault();
       this.simulateClick(button);
-    } else if (event.key === "ArrowRight" || event.key === "9") {
+    } else if (event.key === "ArrowRight" || event.key === "9" || event.key === "d") {
       this.moveFocusByKey(event, 1, 0);
-    } else if (event.key === "ArrowLeft" || event.key === "7") {
+    } else if (event.key === "ArrowLeft" || event.key === "7" || event.key === "a") {
       this.moveFocusByKey(event, -1, 0);
-    } else if (event.key === "ArrowUp" || event.key === "5") {
+    } else if (event.key === "ArrowUp" || event.key === "5" || event.key === "w") {
       this.moveFocusByKey(event, 0, -1);
-    } else if (event.key === "ArrowDown" || event.key === "0") {
+    } else if (event.key === "ArrowDown" || event.key === "0" || event.key === "s") {
       this.moveFocusByKey(event, 0, 1);
     }
   }
