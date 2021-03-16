@@ -55,6 +55,7 @@
     "rollup-plugin-loadz0r": "^0.7.2",
     "rollup-plugin-node-resolve": "^4.2.3",
     "rollup-plugin-postcss": "^2.0.3",
+    "rollup-plugin-size": "^0.2.0",
     "rollup-plugin-terser": "^4.0.4",
     "rollup-pluginutils": "^2.6.0",
     "travis-size-report": "^1.0.1",

@@ -1,4 +1,4 @@
 language: node_js
 cache: npm
-script: npm run build
+script: NODE_ENV=production npm run build
 after_success: sizereport --config

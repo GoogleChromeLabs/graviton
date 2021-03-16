@@ -11,6 +11,7 @@
  * limitations under the License.
  */
 
+import SizePlugin from "rollup-plugin-size";
 import nodeResolve from "rollup-plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
 import loadz0r from "rollup-plugin-loadz0r";
@@ -125,7 +126,8 @@ function buildConfig({ prerender, watch } = {}) {
       simpleTS("src/main", { noBuild: prerender, watch }),
       resourceListPlugin(),
       !prerender && terser(),
-      prerender ? renderStaticPlugin() : createHTMLPlugin()
+      prerender ? renderStaticPlugin() : createHTMLPlugin(),
+      !prerender && SizePlugin({ publish: true, filename: "sizes.json" })
     ].filter(item => item)
   };
 }
