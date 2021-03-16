@@ -1,6 +1,6 @@
-# Long-term cache by default.
+# Long-term cache by default. LOL NO
 /*
-  Cache-Control: max-age=31536000
+  Cache-Control: no-cache
 
 # And here are the exceptions:
 /
@@ -16,4 +16,4 @@
   Cache-Control: no-cache
 
 /manifest.json
-  Cache-Control: must-revalidate, max-age=3600
+  Cache-Control: no-cache
