@@ -206,7 +206,7 @@ export default class Board extends Component<Props, State> {
     }
     this._canvas = this.props.renderer.createCanvas();
     this._canvas.classList.add(canvasStyle);
-    this.base!.appendChild(this._canvas);
+    this.base!.insertBefore(this._canvas, tableContainer); // tableContainer has scrollbars so canvas is under
     tableContainer!.appendChild(this._table);
     this._table.addEventListener("keydown", this.onKeyDownOnTable);
     this._table.addEventListener("keyup", this.onKeyUpOnTable);
