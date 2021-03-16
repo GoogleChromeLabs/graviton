@@ -125,6 +125,7 @@ export default class ShowbizTitle extends Component<Props, State> {
       <div
         class={`${showbizTitle} ${motion ? animateStyle : ""}`}
         role="heading"
+        aria-level="1"
         aria-label="PROXX"
       >
         <div class={showbizTitleFrame} aria-hidden="true">
