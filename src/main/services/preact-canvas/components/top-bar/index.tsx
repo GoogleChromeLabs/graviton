@@ -26,56 +26,13 @@ import {
 // tslint:disable:max-classes-per-file
 
 interface TimeProps {
-  running: boolean;
+  time: number;
 }
 
 // Using a sub class to avoid Preact diffing every second.
 class Time extends Component<TimeProps, {}> {
-  private _start?: number;
-  private _intervalId?: number;
-
-  componentDidMount() {
-    if (this.props.running) {
-      this._startTimer();
-    }
-  }
-
-  componentWillReceiveProps({ running }: TimeProps) {
-    if (running === this.props.running) {
-      return;
-    }
-
-    if (running) {
-      this._startTimer();
-    } else {
-      this._stopTimer();
-    }
-  }
-
-  shouldComponentUpdate() {
-    return false;
-  }
-
-  componentWillUnmount() {
-    this._stopTimer();
-  }
-
   render() {
-    return <div role="timer">00:00</div>;
-  }
-
-  private _startTimer() {
-    this._start = Date.now();
-
-    this._intervalId = setInterval(() => {
-      requestAnimationFrame(() => {
-        this.base!.textContent = minSec(Date.now() - this._start!);
-      });
-    }, 1000);
-  }
-
-  private _stopTimer() {
-    clearInterval(this._intervalId);
+    return <div role="timer">{minSec(this.props.time)}</div>;
   }
 }
 
@@ -95,6 +52,7 @@ export interface Props {
   toRevealTotal?: number;
   toReveal?: number;
   timerRunning?: boolean;
+  time: number;
   playMode?: PlayMode;
   useMotion?: boolean;
   showBestTime?: boolean;
@@ -109,6 +67,7 @@ export default class TopBar extends Component<Props, State> {
     toReveal,
     toRevealTotal,
     timerRunning,
+    time: currentTime,
     playMode,
     useMotion,
     bestTime,
@@ -126,7 +85,7 @@ export default class TopBar extends Component<Props, State> {
           {showBestTime && bestTime
             ? [<div>{minSec(bestTime)}</div>, <Star class={timeIcon} />]
             : [
-                <Time running={timerRunning!} />,
+                <Time time={currentTime} />,
                 <Timer class={timeIcon} animate={timerRunning && useMotion} />
               ]}
         </div>

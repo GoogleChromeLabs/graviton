@@ -56,7 +56,7 @@ interface State {
   playMode: PlayMode;
   toReveal: number;
   startTime: number;
-  endTime: number;
+  hiddenTime: number;
   // This should always be set as we prevent the game from starting until the
   // renderer is loaded.
   renderer?: Renderer;
@@ -71,6 +71,7 @@ initFocusHandling();
 export default class Game extends Component<Props, State> {
   state: State;
   private _tryAgainBtn?: HTMLButtonElement;
+  private _intervalId?: number;
 
   constructor(props: Props) {
     super(props);
@@ -78,9 +79,9 @@ export default class Game extends Component<Props, State> {
       playMode: PlayMode.Pending,
       toReveal: props.toRevealTotal,
       startTime: 0,
+      hiddenTime: 0,
       completeTime: 0,
-      bestTime: 0,
-      endTime: 0
+      bestTime: 0
     };
 
     this._init();
@@ -105,6 +106,7 @@ export default class Game extends Component<Props, State> {
     return (
       <div class={gameClass}>
         <TopBar
+          time={completeTime}
           timerRunning={timerRunning}
           toReveal={toReveal}
           toRevealTotal={toRevealTotal}
@@ -175,11 +177,14 @@ export default class Game extends Component<Props, State> {
       this.props.onDangerModeChange(true);
     }
     window.addEventListener("keyup", this.onKeyUp);
+    document.addEventListener("visibilitychange", this.onVisibilityChange);
   }
 
   componentWillUnmount() {
     this.props.gameChangeUnsubscribe(this.onGameChange);
+    this.stopTimer();
     window.removeEventListener("keyup", this.onKeyUp);
+    document.removeEventListener("visibilitychange", this.onVisibilityChange);
   }
 
   componentDidUpdate(_: Props, previousState: State) {
@@ -193,6 +198,26 @@ export default class Game extends Component<Props, State> {
         navigator.vibrate(vibrationLength);
       }
     }
+  }
+
+  @bind
+  private onVisibilityChange() {
+    if (this.state.playMode !== PlayMode.Playing) {
+      return;
+    }
+
+    const newState: Partial<State> = {};
+    if (document.visibilityState === "hidden") {
+      newState.hiddenTime = Date.now();
+      this.stopTimer();
+    } else {
+      const { startTime, hiddenTime } = this.state;
+      newState.startTime = startTime + Date.now() - hiddenTime;
+      newState.completeTime = Date.now() - newState.startTime;
+      this.startTimer();
+    }
+
+    this.setState(newState as State);
   }
 
   private async _init() {
@@ -259,17 +284,26 @@ export default class Game extends Component<Props, State> {
     ) {
       newState.playMode = gameChange.playMode;
 
-      if (gameChange.playMode! === PlayMode.Playing) {
-        newState.startTime = Date.now();
-      } else if (gameChange.playMode! === PlayMode.Won) {
-        newState.completeTime = Date.now() - this.state.startTime;
-        newState.bestTime = await submitTime(
-          this.props.width,
-          this.props.height,
-          this.props.mines,
-          newState.completeTime
-        );
-        this.props.onDangerModeChange(false);
+      switch (gameChange.playMode!) {
+        case PlayMode.Playing:
+          newState.startTime = Date.now();
+          this.startTimer();
+          break;
+
+        case PlayMode.Won:
+          newState.completeTime = Date.now() - this.state.startTime;
+          newState.bestTime = await submitTime(
+            this.props.width,
+            this.props.height,
+            this.props.mines,
+            newState.completeTime
+          );
+          this.props.onDangerModeChange(false);
+
+        /* fall through */
+        case PlayMode.Lost:
+          this.stopTimer();
+          break;
       }
     }
 
@@ -313,5 +347,20 @@ export default class Game extends Component<Props, State> {
     } else if (cell.touchingFlags >= cell.touchingMines) {
       this.props.stateService.revealSurrounding(x, y);
     }
+  }
+
+  private startTimer() {
+    this._intervalId = setInterval(() => this.updateCompleteTime(), 1000);
+  }
+
+  private stopTimer() {
+    clearInterval(this._intervalId);
+  }
+
+  private updateCompleteTime() {
+    const newState: Partial<State> = {
+      completeTime: Date.now() - this.state.startTime
+    };
+    this.setState(newState as State);
   }
 }
