@@ -26,8 +26,10 @@ if (!prerender) {
   ga("create", "UA-139146337-1", "auto");
   ga("set", "transport", "beacon");
   ga("send", "pageview");
-  // Load the GA script
-  const s = document.createElement("script");
-  s.src = "https://www.google-analytics.com/analytics.js";
-  document.head!.appendChild(s);
+  // Load the GA script after all elements have been loaded.
+  window.addEventListener("load", () => {
+    const s = document.createElement("script");
+    s.src = "https://www.google-analytics.com/analytics.js";
+    document.head!.appendChild(s);
+  });
 }
